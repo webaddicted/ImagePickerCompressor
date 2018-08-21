@@ -2,13 +2,13 @@
 
 This  project help in 
 
-**1) pick image**
+**1) Pick image**
 
-**2) capture Image**
+**2) Capture image**
 
-**3) Compress image**
+**3) Compress image (image store in cache & local path depend on developer)**
 
-**4) get image path from content in all android version.**
+**4) Get image path from content in all android version.**
 
 **5) Permission library is also implement in this project.**
 
