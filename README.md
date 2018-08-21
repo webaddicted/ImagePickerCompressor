@@ -6,7 +6,7 @@ This  project help in
 
 **2) Capture image**
 
-**3) Compress image (image store in cache & local path depend on developer)**
+**3) Compress image (image store in cache & local path depend on developer requirement)**
 
 **4) Get image path from content in all android version.**
 
