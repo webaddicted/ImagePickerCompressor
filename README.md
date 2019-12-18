@@ -16,8 +16,14 @@ This  project help in
 ScreenShot
 -----------
 
+<img src="https://github.com/webaddicted/ImgPickerCompresser/blob/master/screenshot/home.png" width="400">   <img src="https://github.com/webaddicted/ImgPickerCompresser/blob/master/screenshot/permission.png" width="400">
+
+ <img src="https://github.com/webaddicted/ImgPickerCompresser/blob/master/screenshot/selection.png" width="400">
+ <!--
 ![demo](https://github.com/webaddicted/ImgPickerCompresser/blob/master/screenshot/home.png)
 ![demo](https://github.com/webaddicted/ImgPickerCompresser/blob/master/screenshot/permission.png)
 ![demo](https://github.com/webaddicted/ImgPickerCompresser/blob/master/screenshot/selection.png)
+
+-->
 
 
