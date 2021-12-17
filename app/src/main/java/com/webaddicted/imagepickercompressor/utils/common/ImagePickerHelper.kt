@@ -42,7 +42,7 @@ object ImagePickerHelper {
         locationList.add(Manifest.permission.READ_EXTERNAL_STORAGE)
         locationList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         PermissionHelper.requestMultiplePermission(activity, locationList)
-        { isPermissionGranted: Boolean, permission: List<String> ->
+        { isPermissionGranted: Boolean, _: List<String> ->
             if (isPermissionGranted) openIntentChooser(activity, pickerType)
         }
 
@@ -68,12 +68,11 @@ object ImagePickerHelper {
                 ImgPickerType.SELECT_IMAGE -> {
                     val intent = Intent()
                     intent.type = "image/*"
-                    intent.action = Intent.ACTION_GET_CONTENT;
+                    intent.action = Intent.ACTION_GET_CONTENT
                     activity.startActivityForResult(
                         Intent.createChooser(intent, "Select Picture"),
                         ImgPickerType.SELECT_IMAGE.value
-                    );
-
+                    )
 //                    val pickPhoto =
 //                        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
 //                    pickPhoto.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(takePicture))
@@ -113,8 +112,6 @@ object ImagePickerHelper {
                     }
                 }
             }
-//            ImgPickerType.OPEN_CAMERA.value ->
-//                postCropImg(mActivity, data, resultCode)
         }
     }
 
@@ -182,7 +179,7 @@ object ImagePickerHelper {
         return file
     }
 
-    private fun updateGallery(context: Context, imagePath: String?) {
+    private fun updateGallery(context: Context, imagePath: String) {
         val file = File(imagePath)
         MediaScannerConnection.scanFile(
             context, arrayOf(file.toString()),

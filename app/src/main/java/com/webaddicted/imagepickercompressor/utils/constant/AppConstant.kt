@@ -1,8 +1,6 @@
 package com.webaddicted.imagepickercompressor.utils.constant
 
 object AppConstant {
-
-    //    val SUB_DEALER_PICKLIST:
     const val SPLASH_DELAY: Long = 3000
     const val DISPLAY_DATE_FORMAT = "dd-MMM-yyyy"
     const val SERVER_DATE_FORMAT = "yyyy-MM-dd"

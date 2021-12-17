@@ -149,13 +149,11 @@ object PermissionHelper {
         ) { dialog, which ->
             when (which) {
                 DialogInterface.BUTTON_POSITIVE -> mCustomPermission?.let { it1 ->
-                    mPermissionListener?.let { it2 ->
-                        requestMultiplePermission(
-                            activity,
-                            it1,
-                            it2
-                        )
-                    }
+                    requestMultiplePermission(
+                        activity,
+                        it1,
+                        mPermissionListener
+                    )
                 }
                 DialogInterface.BUTTON_NEGATIVE -> mCustomPermission?.let { it1 ->
                     mPermissionListener(
@@ -187,15 +185,10 @@ object PermissionHelper {
                         null
                     )
                     intent.data = uri
-                    activity.startActivity(
-                        intent
-                    )
+                    activity.startActivity(intent)
                 }
                 DialogInterface.BUTTON_NEGATIVE -> mCustomPermission?.let { it1 ->
-                    mPermissionListener(
-                        false,
-                        it1
-                    )
+                    mPermissionListener(false, it1)
                 }
             }// proceed with logic by disabling the related features or quit the app.
         }
@@ -222,9 +215,7 @@ object PermissionHelper {
                         activity,
                         per
                     ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    listPermissionsAssign.add(per)
-                }
+                ) listPermissionsAssign.add(per)
             }
             if (listPermissionsAssign.isNotEmpty()) {
                 return false
