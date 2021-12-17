@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">ImagePicker</string>
+    <string name="app_name">ImagePickerCompressor</string>
+    <string name="forcefully_enable_permission">You have forcefully denied some of the required permissions for this action.\nPlease go to permissions and allow them.</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="something_went_wrong">Something went wrong !!!</string>
+    <string name="capture_photo">Capture Image</string>
+    <string name="cannot_find_image_crop_app">Can not find Image Crop app</string>
+    <string name="insufficient_memory_error">Insufficient Memory error!</string>
+    <string name="capture_image">Capture Image</string>
+    <string name="pick_image_from_gallery">Pick image from gallery</string>
+
+
 </resources>
