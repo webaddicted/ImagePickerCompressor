@@ -10,6 +10,9 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.MediaStore.ACTION_IMAGE_CAPTURE
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.webaddicted.imagepickercompressor.R
 import java.io.*
@@ -32,7 +35,8 @@ object ImagePickerHelper {
     }
 
     fun getImage(
-        activity: Activity,
+        activity: AppCompatActivity,
+        startForResult: ActivityResultLauncher<Intent>,
         pickerType: ImgPickerType,
         imagePickerListener: (mFile: File, imageBitmap: Bitmap) -> Unit
     ) {
@@ -43,12 +47,16 @@ object ImagePickerHelper {
         locationList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         PermissionHelper.requestMultiplePermission(activity, locationList)
         { isPermissionGranted: Boolean, _: List<String> ->
-            if (isPermissionGranted) openIntentChooser(activity, pickerType)
+            if (isPermissionGranted) openIntentChooser(activity, startForResult, pickerType)
         }
 
     }
 
-    private fun openIntentChooser(activity: Activity, pickerType: ImgPickerType) {
+    private fun openIntentChooser(
+        activity: AppCompatActivity,
+        startForResult: ActivityResultLauncher<Intent>,
+        pickerType: ImgPickerType
+    ) {
         val takePicture = Intent(ACTION_IMAGE_CAPTURE)
         try {
             val photoFile = createImgFile(activity)
@@ -63,20 +71,13 @@ object ImagePickerHelper {
                 ImgPickerType.OPEN_CAMERA -> {
                     val pickPhoto = Intent(ACTION_IMAGE_CAPTURE)
                     pickPhoto.putExtra(MediaStore.EXTRA_OUTPUT, arrayOf(takePicture))
-                    activity.startActivityForResult(pickPhoto, ImgPickerType.OPEN_CAMERA.value)
+                    startForResult.launch(pickPhoto)
                 }
                 ImgPickerType.SELECT_IMAGE -> {
                     val intent = Intent()
                     intent.type = "image/*"
                     intent.action = Intent.ACTION_GET_CONTENT
-                    activity.startActivityForResult(
-                        Intent.createChooser(intent, "Select Picture"),
-                        ImgPickerType.SELECT_IMAGE.value
-                    )
-//                    val pickPhoto =
-//                        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-//                    pickPhoto.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(takePicture))
-//                    activity.startActivityForResult(pickPhoto, ImgPickerType.OPEN_CAMERA.value)
+                    startForResult.launch(Intent.createChooser(intent, "Select Picture"))
                 }
                 ImgPickerType.CHOOSER_CAMERA_GALLERY -> {
                     val pickPhoto =
@@ -84,10 +85,7 @@ object ImagePickerHelper {
                     val chooser =
                         Intent.createChooser(pickPhoto, activity.getString(R.string.capture_photo))
                     chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(takePicture))
-                    activity.startActivityForResult(
-                        chooser,
-                        ImgPickerType.CHOOSER_CAMERA_GALLERY.value
-                    )
+                    startForResult.launch(chooser)
                 }
             }
 
@@ -100,23 +98,17 @@ object ImagePickerHelper {
         }
     }
 
-
-    fun onActivityResult(mActivity: Activity, requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            ImgPickerType.OPEN_CAMERA.value, ImgPickerType.SELECT_IMAGE.value, ImgPickerType.CHOOSER_CAMERA_GALLERY.value -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    if (data != null) {
-                        if (data.data != null)
-                            selectedImgUri = data.data as Uri
-                        postCropImg(mActivity, data, resultCode)
-                    }
-                }
-            }
+    fun onActivityResult(mActivity: Activity, activityResult: ActivityResult) {
+        val data = activityResult.data
+        if (data != null) {
+            if (data.data != null)
+                selectedImgUri = data.data as Uri
+            postCropImg(mActivity, data)
         }
     }
 
-    private fun postCropImg(mActivity: Activity, data: Intent?, resultCode: Int) {
-        if (data != null && resultCode == Activity.RESULT_OK) {
+    private fun postCropImg(mActivity: Activity, data: Intent?) {
+        if (data != null) {
             val imageBitmap = if (data.extras == null) {
                 getBitmapFromUri(mActivity, selectedImgUri)
             } else {

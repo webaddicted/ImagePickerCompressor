@@ -1,8 +1,11 @@
 package com.webaddicted.imagepickercompressor.view
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -77,11 +80,10 @@ abstract class BaseActivity(private val layoutId: Int) : AppCompatActivity(), Vi
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         PermissionHelper.onRequestPermissionsResult(this, requestCode, permissions, grantResults)
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == ImagePickerHelper.ImgPickerType.OPEN_CAMERA.value||requestCode == ImagePickerHelper.ImgPickerType.SELECT_IMAGE.value ||requestCode == ImagePickerHelper.ImgPickerType.CHOOSER_CAMERA_GALLERY.value)
-            ImagePickerHelper.onActivityResult(this, requestCode, resultCode, data)
+    protected val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            ImagePickerHelper.onActivityResult(this, result)
+        }
     }
 
 }

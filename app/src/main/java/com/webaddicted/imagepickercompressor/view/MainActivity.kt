@@ -38,9 +38,13 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
     }
 
     private fun captureImg(imageType: ImagePickerHelper.ImgPickerType) {
-        ImagePickerHelper.getImage(this, imageType)
-        { mFile: File, imageBitmap: Bitmap ->
+        ImagePickerHelper.getImage(
+            this,
+            imagePickerLauncher,
+            imageType
+        ) { mFile: File, imageBitmap: Bitmap ->
             if (mFile.exists()) mBinding.imgPick.setImageBitmap(imageBitmap)
         }
+
     }
 }
