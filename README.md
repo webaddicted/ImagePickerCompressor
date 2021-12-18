@@ -17,7 +17,7 @@ ImagePickerCompressor repository handle all api scenario. Manage all validation 
 ## GIF
 <img src="https://github.com/webaddicted/ImagePickerCompressor/raw/main/screenshot/logo.png" width="350">
 
-##Feature
+## Feature
 
 - [x] Base Activity
 - [x] Capture Image
