@@ -12,7 +12,7 @@
 ImagePickerCompressor repository handle all api scenario. Manage all validation DI (Hilt).
 
 <!-- ## GIF -->
-<!-- <img src="https://github.com/webaddicted/ImagePickerCompressor/raw/main/screenshot/funny.webp" width="305"> -->
+<!-- <img src="https://github.com/webaddicted/ImagePickerCompressor/raw/main/screenshot/logo.png" width="305"> -->
 
 ## GIF
 <img src="https://github.com/webaddicted/ImagePickerCompressor/raw/main/screenshot/hilt.png" width="350">
@@ -27,20 +27,7 @@ ImagePickerCompressor repository handle all api scenario. Manage all validation 
 - [x] Android 13 Support
 
 ## HomeScreen
-<img src="https://github.com/webaddicted/HiltDemo/raw/main/screenshot/home.jpg" height="500">
-
-## MapScreen
-<img src="https://github.com/webaddicted/HiltDemo/raw/main/screenshot/map.jpg" height="500">
-
-## OrderScreen
-<img src="https://github.com/webaddicted/HiltDemo/raw/main/screenshot/order.jpg" height="500">
-
-## SurveyScreen
-<img src="https://github.com/webaddicted/HiltDemo/raw/main/screenshot/survey.jpg" height="500">
-
-## ValidationScreen
-<img src="https://github.com/webaddicted/HiltDemo/raw/main/screenshot/validation.jpg" height="500">
-
+<img src="https://github.com/webaddicted/ImagePickerCompressor/raw/main/screenshot/home.jpg" height="500">
 
 ## LICENSE
 ```
