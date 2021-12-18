@@ -7,9 +7,9 @@
 
 ***You can Install and test latest ImagePickerCompressor app from below 👇***
 
-[![ImagePickerCompressor](https://img.shields.io/badge/Image%20Picker%20Compressor-Apk-brightgreen.svg?style=for-the-badge&logo=android)](https://github.com/webaddicted/ImagePickerCompressor/blob/main/apk/app.apk)
+[![ImagePickerCompressor](https://img.shields.io/badge/Image%20Picker%20Compressor-Apk-brightgreen.svg?style=for-the-badge&logo=android)](https://github.com/webaddicted/ImagePickerCompressor/blob/master/apk/app.apk)
 
-ImagePickerCompressor repository handle all api scenario. Manage all validation DI (Hilt).
+ImagePickerCompressor repository help in capture image and save in device. it support android 11 version. this repository contain latest component like remove onActityResult.
 
 <!-- ## GIF -->
 <!-- <img src="https://github.com/webaddicted/ImagePickerCompressor/raw/master/screenshot/logo.png" width="305"> -->
@@ -25,6 +25,8 @@ ImagePickerCompressor repository handle all api scenario. Manage all validation 
 - [x] Open Image Option Chooser 
 - [x] Scope Storage
 - [x] Android 13 Support
+- [x] Remove depricate onActityResult
+
 
 ## HomeScreen
 <img src="https://github.com/webaddicted/ImagePickerCompressor/raw/master/screenshot/home.jpg" height="500">
