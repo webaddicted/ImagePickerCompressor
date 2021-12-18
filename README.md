@@ -1,46 +1,30 @@
 # ImagePickerCompressor
 
-![Open Issue](https://img.shields.io/github/issues/webaddicted/HiltDemo)
-![Forks](https://img.shields.io/github/forks/webaddicted/HiltDemo)
-![Stars](https://img.shields.io/github/stars/webaddicted/HiltDemo)
-![License](https://img.shields.io/github/license/webaddicted/HiltDemo)
+![Open Issue](https://img.shields.io/github/issues/webaddicted/ImagePickerCompressor)
+![Forks](https://img.shields.io/github/forks/webaddicted/ImagePickerCompressor)
+![Stars](https://img.shields.io/github/stars/webaddicted/ImagePickerCompressor)
+![License](https://img.shields.io/github/license/webaddicted/ImagePickerCompressor)
 
-***You can Install and test latest Hilt Demo app from below 👇***
+***You can Install and test latest ImagePickerCompressor app from below 👇***
 
-[![HiltDemo](https://img.shields.io/badge/Hilt%20Demo-Apk-brightgreen.svg?style=for-the-badge&logo=android)](https://github.com/webaddicted/HiltDemo/blob/main/apk/app.apk)
+[![ImagePickerCompressor](https://img.shields.io/badge/Image%20Picker%20Compressor-Apk-brightgreen.svg?style=for-the-badge&logo=android)](https://github.com/webaddicted/ImagePickerCompressor/blob/main/apk/app.apk)
 
-HiltDemo repository handle all api scenario. Manage all validation DI (Hilt).
+ImagePickerCompressor repository handle all api scenario. Manage all validation DI (Hilt).
 
 <!-- ## GIF -->
-<!-- <img src="https://github.com/webaddicted/HiltDemo/raw/main/screenshot/funny.webp" width="305"> -->
+<!-- <img src="https://github.com/webaddicted/ImagePickerCompressor/raw/main/screenshot/funny.webp" width="305"> -->
 
 ## GIF
-<img src="https://github.com/webaddicted/HiltDemo/raw/main/screenshot/hilt.png" width="350">
+<img src="https://github.com/webaddicted/ImagePickerCompressor/raw/main/screenshot/hilt.png" width="350">
 
 ##Feature
 
-- [x] Retrofit
-- [x] Room Database
-- [x] Form Validation
-- [x] Map Direction
-- [x] Image Capture
+- [x] Base Activity
+- [x] Capture Image
+- [x] Select Image From Gallery
+- [x] Open Image Option Chooser 
 - [x] Scope Storage
-- [x] App Version Check
-- [x] DI(Hilt)
-- [x] Shared ViewModel using Hilt
-- [x] Dynamic Dialog Search
-- [x] Realtime Location Capture
-- [x] Whatsapp Message
-- [x] Phone Call from app
-- [x] Pop Back Stack
-- [x] Image Upload Using Multipart
-
-## Screens
-- [Home Module](#HomeScreen)
-- [Map Module](#MapScreen)
-- [Order Module](#OrderScreen)
-- [Survey Module](#SurveyScreen)
-- [Validation](#ValidationScreen)
+- [x] Android 13 Support
 
 ## HomeScreen
 <img src="https://github.com/webaddicted/HiltDemo/raw/main/screenshot/home.jpg" height="500">
