@@ -1,18 +1,36 @@
-package com.webaddicted.imagepickercompressor.view
+package com.webaddicted.imagepickercompressor.view.imgpicker
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.view.View
 import androidx.databinding.ViewDataBinding
 import com.webaddicted.imagepickercompressor.R
-import com.webaddicted.imagepickercompressor.databinding.ActivityMainBinding
+import com.webaddicted.imagepickercompressor.databinding.ActivityImgPickerBinding
 import com.webaddicted.imagepickercompressor.utils.common.ImagePickerHelper
+import com.webaddicted.imagepickercompressor.view.base.BaseActivity
+import com.webaddicted.imagepickercompressor.view.splash.SplashActivity
 import java.io.File
 
-class MainActivity : BaseActivity(R.layout.activity_main) {
-    private lateinit var mBinding: ActivityMainBinding
+class ImagePickerActivity : BaseActivity(R.layout.activity_img_picker) {
+    private lateinit var mBinding: ActivityImgPickerBinding
+
+    companion object {
+        val TAG = SplashActivity::class.qualifiedName
+        fun newIntent(activity: Activity) {
+            activity.startActivity(Intent(activity, ImagePickerActivity::class.java))
+        }
+
+        fun newClearLogin(context: Activity?) {
+            val intent = Intent(context, ImagePickerActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            context?.startActivity(intent)
+            context?.finish()
+        }
+    }
 
     override fun onBindTo(binding: ViewDataBinding) {
-        mBinding = binding as ActivityMainBinding
+        mBinding = binding as ActivityImgPickerBinding
         clickListener()
     }
 
@@ -20,6 +38,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         mBinding.btnCaptureImg.setOnClickListener(this)
         mBinding.btnGalleryPick.setOnClickListener(this)
         mBinding.btnChooseOption.setOnClickListener(this)
+        mBinding.btnScopedStorage.setOnClickListener(this)
     }
 
     override fun onClick(v: View) {
@@ -33,6 +52,9 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
             }
             R.id.btn_choose_option -> {
                 captureImg(ImagePickerHelper.ImgPickerType.CHOOSER_CAMERA_GALLERY)
+            }
+            R.id.btn_scoped_storage -> {
+                ScopedStorageActivity.newIntent(this)
             }
         }
     }
