@@ -15,7 +15,10 @@ import androidx.core.view.drawToBitmap
 import androidx.databinding.ViewDataBinding
 import com.webaddicted.imagepickercompressor.R
 import com.webaddicted.imagepickercompressor.databinding.ActivityScopedStorageBinding
+import com.webaddicted.imagepickercompressor.utils.common.DownloadFileFromURLTask
+import com.webaddicted.imagepickercompressor.utils.common.DownloadListener
 import com.webaddicted.imagepickercompressor.utils.common.GlobalUtils.showToast
+import com.webaddicted.imagepickercompressor.utils.common.GlobalUtils.toast
 import com.webaddicted.imagepickercompressor.utils.constant.AppConstant
 import com.webaddicted.imagepickercompressor.view.base.BaseActivity
 import com.webaddicted.imagepickercompressor.view.splash.SplashActivity
@@ -169,11 +172,16 @@ class ScopedStorageActivity : BaseActivity(R.layout.activity_scoped_storage) {
                 takeScreenshotAndSave(file)
             }
             AppConstant.StorageType.INTERNAL_DOWNLOAD -> {
-                saveImageToStorage(
-                    bitmap = mBinding.nestedParent.drawToBitmap(),
-                    filename = "Picture ${System.currentTimeMillis()}.jpg",
-                    directory = Environment.DIRECTORY_DOWNLOADS
-                )
+                val download = DownloadFileFromURLTask(this, getString(R.string.app_name), object : DownloadListener {
+                    override fun onSuccess(path: String) {
+                        mBinding.txtFilePath.text = path
+                    }
+
+                    override fun onFailure(error: String) {
+                        mBinding.txtFilePath.text = error
+                    }
+                })
+                download.execute()
             }
             AppConstant.StorageType.INTERNAL_DICM -> {
                 saveImageToStorage(
@@ -203,9 +211,9 @@ class ScopedStorageActivity : BaseActivity(R.layout.activity_scoped_storage) {
         val mediaContentUri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         val imageOutStream: OutputStream
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            var outputDirectory = directory
+            val outputDirectory = directory + File.separator + outputDir
             // If you want to create custom directory inside Download directory only
-            outputDirectory = outputDirectory + File.separator + outputDir
+//            outputDirectory =
             val desFile = File(outputDirectory)
             if (!desFile.exists()) {
                 desFile.mkdir()
@@ -217,6 +225,7 @@ class ScopedStorageActivity : BaseActivity(R.layout.activity_scoped_storage) {
                 put(MediaStore.Images.Media.MIME_TYPE, mimeType)
                 put(MediaStore.Images.Media.RELATIVE_PATH, outputDirectory)
             }
+
             val cr = contentResolver
             cr.run {
                 val uri = cr.insert(mediaContentUri, values) ?: return
@@ -232,7 +241,7 @@ class ScopedStorageActivity : BaseActivity(R.layout.activity_scoped_storage) {
             }
 
             // once the app name directory created we create picture directory inside app directory
-            imagePath = imagePath + File.separator + Environment.DIRECTORY_PICTURES
+            imagePath = imagePath + File.separator + directory
             desFile = File(imagePath)
             if (!desFile.exists()) {
                 desFile.mkdir()
