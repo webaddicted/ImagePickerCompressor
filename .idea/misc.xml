@@ -3,7 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudioProjects/testing/ImagePickerCompressor/app/src/main/res/layout/activity_common.xml" value="0.12771739130434784" />
+        <entry key="..\:/AndroidStudioProjects/testing/ImagePickerCompressor/app/src/main/res/layout/activity_img_picker.xml" value="0.12771739130434784" />
         <entry key="..\:/AndroidStudioProjects/testing/ImagePickerCompressor/app/src/main/res/layout/activity_main.xml" value="0.1082427536231884" />
+        <entry key="..\:/AndroidStudioProjects/testing/ImagePickerCompressor/app/src/main/res/layout/activity_scoped_storage.xml" value="0.2" />
+        <entry key="..\:/AndroidStudioProjects/testing/ImagePickerCompressor/app/src/main/res/layout/frm_splash.xml" value="0.12771739130434784" />
       </map>
     </option>
   </component>
