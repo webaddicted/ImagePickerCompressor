@@ -9,6 +9,16 @@
     <string name="insufficient_memory_error">Insufficient Memory error!</string>
     <string name="capture_image">Capture Image</string>
     <string name="pick_image_from_gallery">Pick image from gallery</string>
+    <string name="scoped_storage">Scope Storage</string>
+    <string name="external_storage"><![CDATA[External Storage Path : Android > data > %1$s]]></string>
+    <string name="create_folder">Create Folder</string>
+    <string name="save_image">Save Image</string>
+    <string name="external_storage_folder">External Storage</string>
+    <string name="internal_download_folder">Internal Download Folder</string>
+    <string name="internal_dicm_folder">Internal DICM Folder</string>
+    <string name="select_storage_type">Select storage type</string>
+    <string name="internal_picture_folder">Internal Picture Folder</string>
+    <string name="please_select_path">Please first check folder is created or not</string>
 
 
 </resources>
