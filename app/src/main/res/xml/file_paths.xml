@@ -17,4 +17,7 @@
     <files-path
         name="files"
         path="." />
+    <files-path
+        name="download"
+        path="." />
 </paths>
