@@ -20,6 +20,12 @@ object AppConstant {
         FRIDAY("Friday"),
         SATURDAY("Saturday")
     }
+    enum class StorageType(var value: Int) {
+        EXTERNAL_STORAGE(1),
+        INTERNAL_DOWNLOAD(2),
+        INTERNAL_DICM(3),
+        INTERNAL_PICTURE(4)
+    }
 
 
 }
