@@ -38,6 +38,10 @@
             android:name=".view.imgpicker.ScopedStorageActivity"
             android:label="@string/scoped_storage"
             android:exported="false"/>
+        <activity
+            android:name=".view.imgpicker.SurfaceCameraActivity"
+            android:label="@string/surface_camera"
+            android:exported="false"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
