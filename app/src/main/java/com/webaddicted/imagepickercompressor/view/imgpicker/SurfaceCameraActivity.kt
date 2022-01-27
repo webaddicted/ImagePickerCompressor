@@ -143,11 +143,11 @@ class SurfaceCameraActivity : BaseActivity(R.layout.activity_surface_camera) {
 
     private fun closeCameraOnClick() {
         try {
-            handlerThread!!.quitSafely()
-            handlerThread!!.join()
+            handlerThread?.quitSafely()
+            handlerThread?.join()
             backgroundHandler = null
             handlerThread = null
-            cameraDevice!!.close()
+            cameraDevice?.close()
             cameraDevice = null
             val directFile = getExternalFilesDir(null)
             directFile?.mkdirs()
@@ -171,11 +171,11 @@ class SurfaceCameraActivity : BaseActivity(R.layout.activity_surface_camera) {
         }
 
         override fun onDisconnected(camera: CameraDevice) {
-            cameraDevice!!.close()
+            cameraDevice?.close()
         }
 
         override fun onError(camera: CameraDevice, error: Int) {
-            cameraDevice!!.close()
+            cameraDevice?.close()
             cameraDevice = null
         }
     }
@@ -183,10 +183,10 @@ class SurfaceCameraActivity : BaseActivity(R.layout.activity_surface_camera) {
     @Throws(CameraAccessException::class)
     private fun startCameraPreview() {
         val texture = mBinding.textureView.surfaceTexture
-        texture!!.setDefaultBufferSize(imageDimensions!!.width, imageDimensions!!.height)
+        texture?.setDefaultBufferSize(imageDimensions!!.width, imageDimensions!!.height)
         val surface = Surface(texture)
-        captureRequestBuilder = cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-        captureRequestBuilder!!.addTarget(surface)
+        captureRequestBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        captureRequestBuilder?.addTarget(surface)
         cameraDevice?.createCaptureSession(
             Collections.singletonList(surface),
             object : CameraCaptureSession.StateCallback() {
@@ -226,14 +226,14 @@ class SurfaceCameraActivity : BaseActivity(R.layout.activity_surface_camera) {
 //    override fun onResume() {
 //        super.onResume()
 //        startBackgroundThread()
-//        if (textureView!!.isAvailable) {
+//        if (textureView?.isAvailable) {
 //            try {
 //                openCamera()
 //            } catch (e: CameraAccessException) {
 //                e.printStackTrace()
 //            }
 //        } else {
-//            textureView!!.surfaceTextureListener = surfaceTextureListener
+//            textureView?.surfaceTextureListener = surfaceTextureListener
 //        }
 //    }
 //
@@ -248,14 +248,14 @@ class SurfaceCameraActivity : BaseActivity(R.layout.activity_surface_camera) {
 
     private fun startBackgroundThread() {
         handlerThread = HandlerThread("Camera Background")
-        handlerThread!!.start()
+        handlerThread?.start()
         backgroundHandler = Handler(handlerThread!!.looper)
     }
 
     @Throws(InterruptedException::class)
     private fun stopBackgroundThread() {
-        handlerThread!!.quitSafely()
-        handlerThread!!.join()
+        handlerThread?.quitSafely()
+        handlerThread?.join()
         backgroundHandler = null
         handlerThread = null
     }
