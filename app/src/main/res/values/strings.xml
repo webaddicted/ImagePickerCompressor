@@ -19,6 +19,7 @@
     <string name="select_storage_type">Select storage type</string>
     <string name="internal_picture_folder">Internal Picture Folder</string>
     <string name="please_select_path">Please first check folder is created or not</string>
+    <string name="surface_camera">Surface Camera</string>
 
 
 </resources>
