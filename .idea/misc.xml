@@ -3,6 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudioProjects/project/ImagePickerCompressor/app/src/main/res/drawable/drawable_tick.xml" value="0.113" />
+        <entry key="..\:/AndroidStudioProjects/project/ImagePickerCompressor/app/src/main/res/drawable/ic_camera.xml" value="0.113" />
+        <entry key="..\:/AndroidStudioProjects/project/ImagePickerCompressor/app/src/main/res/drawable/ic_camera_white_24dp.xml" value="0.113" />
+        <entry key="..\:/AndroidStudioProjects/project/ImagePickerCompressor/app/src/main/res/drawable/ic_check_white.xml" value="0.113" />
+        <entry key="..\:/AndroidStudioProjects/project/ImagePickerCompressor/app/src/main/res/layout/activity_img_picker.xml" value="0.20416666666666666" />
+        <entry key="..\:/AndroidStudioProjects/project/ImagePickerCompressor/app/src/main/res/layout/activity_surface_camera.xml" value="0.20416666666666666" />
         <entry key="..\:/AndroidStudioProjects/testing/ImagePickerCompressor/app/src/main/res/layout/activity_common.xml" value="0.12771739130434784" />
         <entry key="..\:/AndroidStudioProjects/testing/ImagePickerCompressor/app/src/main/res/layout/activity_img_picker.xml" value="0.12771739130434784" />
         <entry key="..\:/AndroidStudioProjects/testing/ImagePickerCompressor/app/src/main/res/layout/activity_main.xml" value="0.1082427536231884" />
