@@ -3,6 +3,22 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/drawable_camera_circle.xml" value="0.1945" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/drawable_tick.xml" value="0.167" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/ic_capture.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/ic_flash_auto.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/ic_flash_off.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/ic_flash_on.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/ic_flip_camera.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/ic_retake.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/ic_right.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/ic_torch_off.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/ic_torch_on.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/drawable/round_button_click.xml" value="0.112" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/layout/activity_camera_helper.xml" value="0.17074275362318841" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/layout/activity_img_picker.xml" value="0.17074275362318841" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/layout/include_doc_capture.xml" value="0.164967562557924" />
+        <entry key="..\:/AndroidStudioProjects/Demo/ImagePickerCompressor/app/src/main/res/menu/menu_camera.xml" value="0.20416666666666666" />
         <entry key="..\:/AndroidStudioProjects/project/ImagePickerCompressor/app/src/main/res/drawable/drawable_tick.xml" value="0.113" />
         <entry key="..\:/AndroidStudioProjects/project/ImagePickerCompressor/app/src/main/res/drawable/ic_camera.xml" value="0.113" />
         <entry key="..\:/AndroidStudioProjects/project/ImagePickerCompressor/app/src/main/res/drawable/ic_camera_white_24dp.xml" value="0.113" />

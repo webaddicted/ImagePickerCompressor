@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/colorPrimary">
+    <item
+        android:id="@+id/flash"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_flash_off"
+        app:showAsAction="always"
+        android:title="@string/flash_on" >
+
+    </item>
+    <item
+        android:id="@+id/torch"
+        android:orderInCategory="101"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_torch_on"
+        android:title="Torch" />
+
+</menu>

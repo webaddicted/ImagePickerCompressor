@@ -22,7 +22,6 @@ abstract class BaseActivity(private val layoutId: Int) : AppCompatActivity(), Vi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding: ViewDataBinding?
-
         if (layoutId != 0) {
             try {
                 binding = DataBindingUtil.setContentView(this, layoutId)
@@ -78,10 +77,12 @@ abstract class BaseActivity(private val layoutId: Int) : AppCompatActivity(), Vi
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         PermissionHelper.onRequestPermissionsResult(this, requestCode, permissions, grantResults)
     }
-    protected val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            ImagePickerHelper.onActivityResult(this, result)
+
+    protected val imagePickerLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                ImagePickerHelper.onActivityResult(this, result)
+            }
         }
-    }
 
 }

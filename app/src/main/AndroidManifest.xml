@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.webaddicted.imagepickercompressor">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
 
     <uses-feature android:name="android.hardware.camera" />
-    <uses-feature
-        android:name="android.hardware.camera.autofocus"
-        android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature
         android:name="android.hardware.camera.flash"
         android:required="false" />
 
+    <permission
+        android:name="android.permission.FLASHLIGHT"
+        android:permissionGroup="android.permission-group.HARDWARE_CONTROLS"
+        android:required="false" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ImagePickerCompressor">
         <activity
@@ -33,15 +35,20 @@
         </activity>
         <activity
             android:name=".view.imgpicker.ImagePickerActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".view.imgpicker.ScopedStorageActivity"
-            android:label="@string/scoped_storage"
-            android:exported="false"/>
+            android:exported="false"
+            android:label="@string/scoped_storage" />
         <activity
             android:name=".view.imgpicker.SurfaceCameraActivity"
-            android:label="@string/surface_camera"
-            android:exported="false"/>
+            android:exported="false"
+            android:label="@string/surface_camera" />
+        <activity
+            android:name=".view.imgpicker.CameraXActivity"
+            android:exported="true"
+            android:label="@string/camerax" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

@@ -20,6 +20,20 @@
     <string name="internal_picture_folder">Internal Picture Folder</string>
     <string name="please_select_path">Please first check folder is created or not</string>
     <string name="surface_camera">Surface Camera</string>
+    <string name="camerax">CameraX</string>
+    <string name="retry">Retry</string>
+    <string name="confirm">Confirm</string>
 
+    <string name="take_aadhaar_front_photo">Take Aadhaar Front Photo</string>
+    <string name="take_aadhaar_back_photo">Take Aadhaar Back Photo</string>
+    <string name="take_pan_photo">Take Pan Photo</string>
+    <string name="confirm_aadhaar_front_photo">Confirm Aadhaar Front Photo</string>
+    <string name="confirm_aadhaar_back_photo">Confirm Aadhaar Back Photo</string>
+    <string name="confirm_pan_photo">Confirm Pan Photo</string>
+    <string name="flash_off">Flash Off</string>
+    <string name="flash_on">Flash On</string>
+    <string name="flash_auto">Flash Auto</string>
+    <string name="torch_off">Torch Off</string>
+    <string name="torch_on">Torch On</string>
 
 </resources>

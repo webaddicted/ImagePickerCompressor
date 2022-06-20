@@ -40,6 +40,8 @@ class ImagePickerActivity : BaseActivity(R.layout.activity_img_picker) {
         mBinding.btnChooseOption.setOnClickListener(this)
         mBinding.btnScopedStorage.setOnClickListener(this)
         mBinding.btnSurfaceCamera.setOnClickListener(this)
+        mBinding.btnCameraX.setOnClickListener(this)
+
     }
 
     override fun onClick(v: View) {
@@ -59,6 +61,10 @@ class ImagePickerActivity : BaseActivity(R.layout.activity_img_picker) {
             }
             R.id.btn_surface_camera -> {
                 SurfaceCameraActivity.newIntent(this)
+            }
+            R.id.btn_camera_x -> {
+                val intent = CameraXActivity.newIntent(this)
+                startActivity(intent)
             }
         }
     }
