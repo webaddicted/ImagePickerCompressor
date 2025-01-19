@@ -9,6 +9,8 @@
     <string name="insufficient_memory_error">Insufficient Memory error!</string>
     <string name="capture_image">Capture Image</string>
     <string name="pick_image_from_gallery">Pick image from gallery</string>
+    <string name="pick_image_from_gallery_option">Pick image from gallery Option</string>
+
     <string name="scoped_storage">Scope Storage</string>
     <string name="external_storage"><![CDATA[External Storage Path : Android > data > %1$s]]></string>
     <string name="create_folder">Create Folder</string>
@@ -35,5 +37,7 @@
     <string name="flash_auto">Flash Auto</string>
     <string name="torch_off">Torch Off</string>
     <string name="torch_on">Torch On</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="select_picture">Select Picture</string>
 
 </resources>

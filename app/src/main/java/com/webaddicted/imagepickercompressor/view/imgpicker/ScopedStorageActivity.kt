@@ -58,7 +58,7 @@ class ScopedStorageActivity : BaseActivity(R.layout.activity_scoped_storage) {
         mBinding.btnSaveImage.setOnClickListener(this)
         mBinding.rg.setOnCheckedChangeListener { group, checkedId ->
             Log.d("chk", "id$checkedId")
-            val rb = group.findViewById(checkedId) as RadioButton
+            val rb: RadioButton = group.findViewById(checkedId)
             when (checkedId) {
                 R.id.rb_external_storage -> {
                     filePath = null
@@ -152,6 +152,9 @@ class ScopedStorageActivity : BaseActivity(R.layout.activity_scoped_storage) {
 //            AppConstant.StorageType.INTERNAL_PICTURE -> {
 //                saveImageToStorage(bitmap = mBinding.nestedParent.drawToBitmap(), filename = "Picture ${System.currentTimeMillis()}.jpg")
 //            }
+            AppConstant.StorageType.INTERNAL_DOWNLOAD -> TODO()
+            AppConstant.StorageType.INTERNAL_DICM -> TODO()
+            AppConstant.StorageType.INTERNAL_PICTURE -> TODO()
         }
         Log.d("TAG", "File Path : ${filePath?.absolutePath}")
     }

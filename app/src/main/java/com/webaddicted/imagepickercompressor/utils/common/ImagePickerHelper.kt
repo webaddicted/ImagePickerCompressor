@@ -8,25 +8,34 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.provider.MediaStore.ACTION_IMAGE_CAPTURE
+import android.util.Base64
+import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.webaddicted.imagepickercompressor.R
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
-
+import java.util.Date
+import java.util.Locale
 
 object ImagePickerHelper {
+
     private lateinit var selectedImgUri: Uri
     private const val IMG_FILE_NAME_FORMAT = "yyyyMMdd_HHmmss"
     private const val IMG_FILE_EXT = "jpeg"
     private const val IMG_DIR = "app_imgs_dir"
     private var mCurrentPhotoPath: String = ""
-    private lateinit var imageListener: (File, imageBitmap: Bitmap) -> Unit
+    private lateinit var imageListener: (File, Bitmap) -> Unit
 
     enum class ImgPickerType(val value: Int) {
         OPEN_CAMERA(5002),
@@ -38,18 +47,30 @@ object ImagePickerHelper {
         activity: AppCompatActivity,
         startForResult: ActivityResultLauncher<Intent>,
         pickerType: ImgPickerType,
-        imagePickerListener: (mFile: File, imageBitmap: Bitmap) -> Unit
+        imagePickerListener: (File, Bitmap) -> Unit
     ) {
         imageListener = imagePickerListener
-        val locationList = ArrayList<String>()
-        locationList.add(Manifest.permission.CAMERA)
-        locationList.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        locationList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        PermissionHelper.requestMultiplePermission(activity, locationList)
-        { isPermissionGranted: Boolean, _: List<String> ->
-            if (isPermissionGranted) openIntentChooser(activity, startForResult, pickerType)
+
+        val permissions = mutableListOf(Manifest.permission.CAMERA)
+        if (Build.VERSION.SDK_INT <= 32) {
+            permissions.addAll(
+                listOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            )
         }
 
+        PermissionHelper.requestMultiplePermission(activity, permissions) { isGranted, _ ->
+            if (isGranted) {
+                openIntentChooser(activity, startForResult, pickerType)
+            } else {
+                DialogUtils.showDialog(
+                    activity,
+                    message = activity.getString(R.string.permission_denied)
+                )
+            }
+        }
     }
 
     private fun openIntentChooser(
@@ -57,125 +78,159 @@ object ImagePickerHelper {
         startForResult: ActivityResultLauncher<Intent>,
         pickerType: ImgPickerType
     ) {
-        val takePicture = Intent(ACTION_IMAGE_CAPTURE)
         try {
+            val takePictureIntent = Intent(ACTION_IMAGE_CAPTURE)
             val photoFile = createImgFile(activity)
             selectedImgUri = FileProvider.getUriForFile(
-                activity, activity.packageName + ".provider",
-                photoFile
+                activity, "${activity.packageName}.provider", photoFile
             )
-            takePicture.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            takePicture.flags = Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            takePicture.putExtra(MediaStore.EXTRA_OUTPUT, selectedImgUri)
+            takePictureIntent.apply {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                putExtra(MediaStore.EXTRA_OUTPUT, selectedImgUri)
+            }
+
             when (pickerType) {
                 ImgPickerType.OPEN_CAMERA -> {
-                    val pickPhoto = Intent(ACTION_IMAGE_CAPTURE)
-                    pickPhoto.putExtra(MediaStore.EXTRA_OUTPUT, arrayOf(takePicture))
-                    startForResult.launch(pickPhoto)
+                    startForResult.launch(takePictureIntent)
                 }
                 ImgPickerType.SELECT_IMAGE -> {
-                    val intent = Intent()
-                    intent.type = "image/*"
-                    intent.action = Intent.ACTION_GET_CONTENT
-                    startForResult.launch(Intent.createChooser(intent, "Select Picture"))
+                    val selectImageIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                        type = "image/*"
+                    }
+                    startForResult.launch(Intent.createChooser(selectImageIntent, "Select Picture"))
                 }
                 ImgPickerType.CHOOSER_CAMERA_GALLERY -> {
-                    val pickPhoto =
+                    val pickGalleryIntent =
                         Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                    val chooser =
-                        Intent.createChooser(pickPhoto, activity.getString(R.string.capture_photo))
-                    chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(takePicture))
-                    startForResult.launch(chooser)
+                    val chooserIntent = Intent.createChooser(
+                        pickGalleryIntent,
+                        activity.getString(R.string.capture_photo)
+                    ).apply {
+                        putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(takePictureIntent))
+                    }
+                    startForResult.launch(chooserIntent)
                 }
             }
-
         } catch (e: IOException) {
-            GlobalUtils.logPrint(msg = e.toString())
-            DialogUtils.showDialog(
-                activity,
-                message = activity.getString(R.string.something_went_wrong) + e.toString()
-            )
+            handleError(activity, e)
         }
     }
 
-    fun onActivityResult(mActivity: Activity, activityResult: ActivityResult) {
+    fun onActivityResult(activity: Activity, activityResult: ActivityResult) {
         val data = activityResult.data
-        if (data != null) {
-            if (data.data != null)
-                selectedImgUri = data.data as Uri
-            postCropImg(mActivity, data)
-        }
+        selectedImgUri = data?.data ?: selectedImgUri
+        postProcessImage(activity, data)
     }
 
-    private fun postCropImg(mActivity: Activity, data: Intent?) {
-        if (data != null) {
-            val imageBitmap = if (data.extras == null) {
-                getBitmapFromUri(mActivity, selectedImgUri)
-            } else {
-                data.extras?.let { it.getParcelable<Uri>("data") as Bitmap }
+    private fun postProcessImage(activity: Activity, data: Intent?) {
+        try {
+            val bitmap = data?.extras?.getParcelable<Bitmap>("data")
+                ?: getBitmapFromUri(activity, selectedImgUri)
+            bitmap?.let {
+                val file = saveBitmapToFile(activity, it)
+                if (file != null) imageListener(file, it)
             }
-            imageBitmap?.let { imageListener(getFile(mActivity, imageBitmap)!!, it) }
+        } catch (e: Exception) {
+            handleError(activity, e)
         }
     }
 
     private fun getBitmapFromUri(context: Context, uri: Uri): Bitmap? {
-        var bitmap: Bitmap? = null
-        uri.authority?.let {
-            try {
-                val content = context.contentResolver.openInputStream(uri)
-                bitmap = BitmapFactory.decodeStream(content)
-            } catch (e: FileNotFoundException) {
-                e.printStackTrace()
-            } catch (e: IOException) {
-                e.printStackTrace()
+        return try {
+            context.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it)
             }
-        }
-        return bitmap
-    }
-
-    private fun createImgFile(mActivity: Activity): File {
-        val imgFileName =
-            "${SimpleDateFormat(IMG_FILE_NAME_FORMAT, Locale.US).format(Date())}.$IMG_FILE_EXT"
-        val folder = File(mActivity.filesDir, IMG_DIR)
-        folder.mkdir()
-        val image = File(folder, imgFileName)
-        image.createNewFile()
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.absolutePath
-        updateGallery(mActivity, mCurrentPhotoPath)
-        return image
-    }
-
-    private fun getFile(mContext: Context, bmp: Bitmap?): File? {
-        val imgFileName = "${
-            SimpleDateFormat(
-                IMG_FILE_NAME_FORMAT,
-                Locale.US
-            ).format(Date())
-        }.${IMG_FILE_EXT}"
-        val folder = File(mContext.filesDir, IMG_DIR)
-        folder.mkdir()
-        val file = File(folder, imgFileName)
-        file.createNewFile()
-
-        val outStream: OutputStream?
-        try {
-            outStream = FileOutputStream(file)
-            bmp?.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
-            outStream.flush()
-            outStream.close()
-        } catch (e: java.lang.Exception) {
+        } catch (e: IOException) {
             e.printStackTrace()
-            return null
+            null
         }
-        return file
+    }
+
+    private fun createImgFile(activity: Activity): File {
+        val imgFileName =
+            SimpleDateFormat(IMG_FILE_NAME_FORMAT, Locale.US).format(Date()) + ".$IMG_FILE_EXT"
+        val folder = File(activity.filesDir, IMG_DIR).apply {
+            if (!exists()) mkdir()
+        }
+        return File(folder, imgFileName).apply {
+            createNewFile()
+            mCurrentPhotoPath = absolutePath
+            updateGallery(activity, mCurrentPhotoPath)
+        }
+    }
+
+    private fun saveBitmapToFile(context: Context, bitmap: Bitmap): File? {
+        return try {
+            val imgFileName =
+                SimpleDateFormat(IMG_FILE_NAME_FORMAT, Locale.US).format(Date()) + ".$IMG_FILE_EXT"
+            val folder = File(context.filesDir, IMG_DIR).apply {
+                if (!exists()) mkdir()
+            }
+            val file = File(folder, imgFileName)
+            FileOutputStream(file).use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            }
+            file
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
     }
 
     private fun updateGallery(context: Context, imagePath: String) {
-        val file = File(imagePath)
-        MediaScannerConnection.scanFile(
-            context, arrayOf(file.toString()),
-            null, null
+        MediaScannerConnection.scanFile(context, arrayOf(imagePath), null, null)
+    }
+
+    private fun handleError(activity: Activity, exception: Exception) {
+        exception.printStackTrace()
+        DialogUtils.showDialog(
+            activity,
+            message = activity.getString(R.string.something_went_wrong) + ": ${exception.message}"
         )
+    }
+    suspend fun convertBase64Image(imgString: String): String {
+        val mFile = File(imgString)
+        val imageCompressionType = 2L
+        var base64: String = ""
+        try {
+            if (mFile.exists()) {
+                if (mFile.path.contains(".pdf") || mFile.path.contains(".doc")) {
+                    val size: Int = (mFile.length().toString() + "").toInt()
+                    val bytes = ByteArray(size)
+                    //                    Log.d("TestTag", "PDF Size : ${bytes.size}")
+                    try {
+                        val buf = BufferedInputStream(FileInputStream(mFile))
+                        buf.read(bytes, 0, bytes.size)
+                        buf.close()
+                    } catch (e: FileNotFoundException) {
+                        Log.d("convertBase64Image","FileNotFoundException $e")
+                    } catch (e: IOException) {
+                        Log.d("convertBase64Image","IOException $e")
+                    }
+                    base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                } else if(imageCompressionType == 2L) {
+                    // new compression best compression technique
+                    val imageCompressionType = 1024
+                    base64 = ImageUtils.compressInternal(
+                        imgString,
+                        ImageUtils.NEW_CAMERA_SAMPLING,
+                        ImageUtils.NEW_CAMERA_JPEG_QUALITY,
+                        imageCompressionType,
+                        Bitmap.Config.RGB_565)
+                }else{
+                    // without any compression
+                    val bytes = ByteArray(mFile.length().toInt())
+                    val inputStream = FileInputStream(mFile)
+                    inputStream.read(bytes)
+                    inputStream.close()
+                    base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                }
+            } else {
+                //                LogUtility.d(TAG,getString(R.string.ihi_file_not_exist))
+            }
+        } catch (e: Exception) {
+            Log.d("convertBase64Image","convertBase64Image $e")
+        }
+        return base64
     }
 }

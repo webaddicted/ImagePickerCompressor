@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
@@ -77,12 +78,14 @@ class SurfaceCameraActivity : BaseActivity(R.layout.activity_surface_camera) {
     private fun checkPermission() {
         val locationList = ArrayList<String>()
         locationList.add(Manifest.permission.CAMERA)
-        locationList.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        locationList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (Build.VERSION.SDK_INT <= 32) {
+            locationList.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            locationList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
         PermissionHelper.requestMultiplePermission(this, locationList)
         { isPermissionGranted: Boolean, _: List<String> ->
             if (isPermissionGranted) {
-                if (mBinding.imgCapture.visibility === View.VISIBLE) {
+                if (mBinding.imgCapture.visibility == View.VISIBLE) {
                     mBinding.imgCapture.visibility = View.GONE
                     mBinding.btnCircleCapture.background = getDrawable(R.drawable.drawable_tick)
                     openCameraOnClick()

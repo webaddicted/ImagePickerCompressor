@@ -43,31 +43,28 @@ class CameraXActivity : BaseActivity(R.layout.activity_camera_helper) {
     private lateinit var cameraExecutor: ExecutorService
     private var cameraType: Int = AADHAAR_CARD
     private var firstImage: File? = null
-    var imageMimeTypes = arrayOf("image/jpeg", "image/png", "image/jpg")
 
     companion object {
-        val TAG = CameraXActivity::class.java.simpleName.toString()
+        private const val TAG = "CameraXActivity"
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         const val FRONT_IMG = "FrontImg"
         const val BACK_IMG = "BackImg"
         const val SCREEN_OPEN_FROM = "ScreenOpenFrom"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         const val CAMERA_TYPE = "CameraType"
         const val AADHAAR_CARD = 9001
         const val PAN_CARD = 9002
 
         @JvmStatic
-        fun newIntent(
-            activity: Activity,
-            cameraType: Int = AADHAAR_CARD
-        ): Intent {
-            val intent = Intent(activity, CameraXActivity::class.java)
-            intent.putExtra(CAMERA_TYPE, cameraType)
-            return intent
+        fun newIntent(activity: Activity, cameraType: Int = AADHAAR_CARD): Intent {
+            return Intent(activity, CameraXActivity::class.java).apply {
+                putExtra(CAMERA_TYPE, cameraType)
+            }
         }
 
         fun newClearLogin(context: Activity?) {
-            val intent = Intent(context, CameraXActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            val intent = Intent(context, CameraXActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
             context?.startActivity(intent)
             context?.finish()
         }
@@ -75,6 +72,12 @@ class CameraXActivity : BaseActivity(R.layout.activity_camera_helper) {
 
     override fun onBindTo(binding: ViewDataBinding) {
         mBinding = binding as ActivityCameraHelperBinding
+        setupActionBarAndWindow()
+        cameraType = intent.getIntExtra(CAMERA_TYPE, AADHAAR_CARD)
+        initUi()
+    }
+
+    private fun setupActionBarAndWindow() {
         supportActionBar?.hide()
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -82,49 +85,22 @@ class CameraXActivity : BaseActivity(R.layout.activity_camera_helper) {
             decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             statusBarColor = Color.TRANSPARENT
         }
-        cameraType = intent.getIntExtra(CAMERA_TYPE, AADHAAR_CARD)
-        initUi()
     }
 
     private fun initUi() {
-        mBinding.includeDocCapture.imgBack.setOnClickListener(this)
-        mBinding.includeDocCapture.imgCapture.setOnClickListener(this)
-        mBinding.includeDocCapture.imgSelfie.setOnClickListener(this)
-        mBinding.includeDocCapture.imgGallery.setOnClickListener(this)
-        mBinding.includeDocCapture.btnConfirm.setOnClickListener(this)
-        mBinding.includeDocCapture.btnRetake.setOnClickListener(this)
-        mBinding.includeDocCapture.imgOption.setOnClickListener(this)
+        with(mBinding.includeDocCapture) {
+            imgBack.setOnClickListener { onBackPressed() }
+            imgCapture.setOnClickListener { takePhoto() }
+            imgSelfie.setOnClickListener { toggleCameraLens() }
+            imgGallery.setOnClickListener { openGallery() }
+            btnConfirm.setOnClickListener { confirmClick() }
+            btnRetake.setOnClickListener { retakePhoto() }
+            imgOption.setOnClickListener { showPopupMenu(it) }
+        }
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-
-    override fun onClick(view: View) {
-        super.onClick(view)
-        when (view.id) {
-            R.id.img_back -> onBackPressed()
-            R.id.img_capture -> takePhoto()
-            R.id.img_selfie -> {
-                lensFacing = when (lensFacing) {
-                    CameraSelector.LENS_FACING_BACK -> CameraSelector.LENS_FACING_FRONT
-                    else -> CameraSelector.LENS_FACING_BACK
-                }
-                startCamera()
-            }
-            R.id.img_gallery -> {
-                val intent = Intent()
-                intent.type = "image/*"
-                intent.action = Intent.ACTION_GET_CONTENT
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, imageMimeTypes)
-                imgPickerLauncher.launch(Intent.createChooser(intent, "Select Picture"))
-            }
-            R.id.btn_confirm -> confirmClick()
-            R.id.btn_retake -> {
-                deleteImage()
-                startCamera()
-            }
-            R.id.img_option -> showPopupMenu(mBinding.includeDocCapture.imgOption)
-        }
-    }
+    override fun onClick(view: View) {}
 
     override fun onBackPressed() {
         if (cameraType == AADHAAR_CARD && firstImage != null) {
@@ -144,12 +120,8 @@ class CameraXActivity : BaseActivity(R.layout.activity_camera_helper) {
             getImgFromGallery = false
             return
         }
-        val locationList = ArrayList<String>()
-        locationList.add(Manifest.permission.CAMERA)
-        PermissionHelper.requestMultiplePermission(this, locationList)
-        { isPermissionGranted: Boolean, _: List<String> ->
-            if (isPermissionGranted) startCamera()
-            else {
+        PermissionHelper.requestMultiplePermission(this, listOf(Manifest.permission.CAMERA)) { granted, _ ->
+            if (granted) startCamera() else {
                 showToast(getString(R.string.forcefully_enable_permission))
                 finish()
             }
@@ -157,63 +129,51 @@ class CameraXActivity : BaseActivity(R.layout.activity_camera_helper) {
     }
 
     private fun startCamera() {
-        mBinding.imgPreview.visibility = View.GONE
-        mBinding.previewView.visibility = View.VISIBLE
-        mBinding.includeDocCapture.liCameraPreview.visibility = View.GONE
-        mBinding.includeDocCapture.liLiveCamera.visibility = View.VISIBLE
-        when (cameraType) {
-            AADHAAR_CARD -> {
-                mBinding.includeDocCapture.txtTitle.text =
-                    if (firstImage == null) getString(R.string.take_aadhaar_front_photo)
-                    else getString(R.string.take_aadhaar_back_photo)
-            }
-            PAN_CARD -> {
-                mBinding.includeDocCapture.liLiveCamera.visibility = View.VISIBLE
-                mBinding.includeDocCapture.txtTitle.text =
-                    getString(R.string.take_pan_photo)
-            }
-        }
-        filePath = null
+        resetCameraUi()
         outputDirectory = getOutputDirectory()
+
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder()
-                .build()
-                .also { it.setSurfaceProvider(mBinding.previewView.surfaceProvider) }
-            imageCapture = ImageCapture.Builder().build()
-            imageCapture?.flashMode = flashMode
+            val preview = Preview.Builder().build().also { it.surfaceProvider = mBinding.previewView.surfaceProvider }
+
+            imageCapture = ImageCapture.Builder().setFlashMode(flashMode).build()
+
             try {
                 cameraProvider.unbindAll()
-                camera =
-                    cameraProvider.bindToLifecycle(
-                        this,
-                        createCameraSelector(),
-                        preview,
-                        imageCapture
-                    )
-                val control: CameraControl = camera!!.cameraControl
-                control.enableTorch(isTorchModeEnabled)
-                setupZoomAndTapToFocus(camera!!.cameraInfo, control)
+                camera = cameraProvider.bindToLifecycle(this, createCameraSelector(), preview, imageCapture).apply {
+                    cameraControl.enableTorch(isTorchModeEnabled)
+                }
+                setupZoomAndTapToFocus(camera!!.cameraInfo, camera!!.cameraControl)
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun createCameraSelector(): CameraSelector = CameraSelector.Builder()
-        .requireLensFacing(lensFacing)
-        .build()
+    private fun resetCameraUi() {
+        with(mBinding) {
+            imgPreview.visibility = View.GONE
+            previewView.visibility = View.VISIBLE
+            includeDocCapture.liCameraPreview.visibility = View.GONE
+            includeDocCapture.liLiveCamera.visibility = View.VISIBLE
+        }
+
+        when (cameraType) {
+            AADHAAR_CARD -> mBinding.includeDocCapture.txtTitle.text =
+                getString(if (firstImage == null) R.string.take_aadhaar_front_photo else R.string.take_aadhaar_back_photo)
+            PAN_CARD -> mBinding.includeDocCapture.txtTitle.text = getString(R.string.take_pan_photo)
+        }
+    }
+
+    private fun createCameraSelector() = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
-        val photoFile = File(
-            outputDirectory,
-            SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg"
-        )
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+        val photoFile = File(outputDirectory, SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg")
+
         imageCapture.takePicture(
-            outputOptions,
+            ImageCapture.OutputFileOptions.Builder(photoFile).build(),
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
@@ -221,224 +181,180 @@ class CameraXActivity : BaseActivity(R.layout.activity_camera_helper) {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val savedUri = Uri.fromFile(photoFile)
+                    filePath = photoFile
+                    mBinding.imgPreview.setImageURI(Uri.fromFile(photoFile))
                     shutterSound()
-                    mBinding.imgPreview.setImageURI(savedUri)
-                    filePath = savedUri.path?.let { File(it) }
                     capturedImagePreview()
                 }
-            })
+            }
+        )
     }
 
-    private fun capturedImagePreview() {
-        mBinding.previewView.visibility = View.GONE
-        mBinding.imgPreview.visibility = View.VISIBLE
-        mBinding.includeDocCapture.liLiveCamera.visibility = View.GONE
-        mBinding.includeDocCapture.liCameraPreview.visibility = View.VISIBLE
+    private fun toggleCameraLens() {
+        lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK
+        startCamera()
+    }
 
-        when (cameraType) {
-            AADHAAR_CARD -> {
-                mBinding.includeDocCapture.txtTitle.text =
-                    if (firstImage == null) getString(R.string.confirm_aadhaar_front_photo)
-                    else getString(R.string.confirm_aadhaar_back_photo)
-            }
-            PAN_CARD -> {
-                mBinding.includeDocCapture.txtTitle.text =
-                    getString(R.string.confirm_pan_photo)
-            }
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/jpeg", "image/png", "image/jpg"))
         }
+        imgPickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_picture)))
     }
 
     private val imgPickerLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data
-                if (data != null && data.data != null) {
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { uri ->
                     getImgFromGallery = true
-                    val imgUri = data.data as Uri
-                    mBinding.imgPreview.setImageURI(imgUri)
-                    val bmp = getBitmapFromUri(this, imgUri)
-                    filePath = getFile(this, bmp)
+                    mBinding.imgPreview.setImageURI(uri)
+                    filePath = getFileFromBitmap(getBitmapFromUri(uri))
                     capturedImagePreview()
                 }
             }
         }
 
-    //    val intent = Intent()
-//    intent.putExtra(IS_SUCCESSFULLY_IMAGE_VERIFY, true)
-//    setResult(RESULT_OK, intent)
-//    super.finish()
     private fun confirmClick() {
-        when (cameraType) {
-            AADHAAR_CARD -> {
-                if (firstImage == null) {
-                    firstImage = filePath
-                    mBinding.includeDocCapture.txtTitle.text =
-                        getString(R.string.take_aadhaar_back_photo)
-                    startCamera()
-                } else selectedImage()
-            }
-            PAN_CARD -> {
+        if (cameraType == AADHAAR_CARD) {
+            if (firstImage == null) {
                 firstImage = filePath
-                filePath = null
-                selectedImage()
-            }
+                startCamera()
+            } else finishActivityWithResult()
+        } else {
+            firstImage = filePath
+            finishActivityWithResult()
         }
     }
 
-    private fun selectedImage() {
-        val data = Intent()
-        data.putExtra(FRONT_IMG, firstImage?.path.toString())
-        if (filePath != null)
-            data.putExtra(BACK_IMG, filePath?.path.toString())
-        data.putExtra(CAMERA_TYPE, cameraType)
-        data.putExtra(SCREEN_OPEN_FROM, TAG)
-        setResult(RESULT_OK, data)
+    private fun retakePhoto() {
+        filePath?.delete()
+        startCamera()
+    }
+
+    private fun capturedImagePreview() {
+        with(mBinding) {
+            previewView.visibility = View.GONE
+            imgPreview.visibility = View.VISIBLE
+            includeDocCapture.liLiveCamera.visibility = View.GONE
+            includeDocCapture.liCameraPreview.visibility = View.VISIBLE
+        }
+    }
+
+    private fun finishActivityWithResult() {
+        setResult(RESULT_OK, Intent().apply {
+            putExtra(FRONT_IMG, firstImage?.path)
+            putExtra(BACK_IMG, filePath?.path)
+            putExtra(CAMERA_TYPE, cameraType)
+            putExtra(SCREEN_OPEN_FROM, TAG)
+        })
         finish()
     }
 
-    private fun getBitmapFromUri(context: Context, uri: Uri): Bitmap? {
-        var bitmap: Bitmap? = null
-        uri.authority?.let {
-            try {
-                val content = context.contentResolver.openInputStream(uri)
-                bitmap = BitmapFactory.decodeStream(content)
-            } catch (e: FileNotFoundException) {
-                e.printStackTrace()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-        return bitmap
+    private fun getBitmapFromUri(uri: Uri): Bitmap? {
+        return contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
     }
 
-    private fun getFile(mContext: Context, bmp: Bitmap?): File? {
-        val file = File(
-            outputDirectory,
-            SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg"
-        )
+    private fun getFileFromBitmap(bitmap: Bitmap?): File? {
+        val file = File(outputDirectory, SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg")
         file.createNewFile()
-
-        val outStream: OutputStream?
-        try {
-            outStream = FileOutputStream(file)
-            bmp?.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
-            outStream.flush()
-            outStream.close()
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-            return null
-        }
+        FileOutputStream(file).use { bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, it) }
         return file
     }
 
     private fun getOutputDirectory(): File {
-        val mediaDir = externalMediaDirs?.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
-        }
-        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
+        return externalMediaDirs.firstOrNull()?.let {
+            File(it, getString(R.string.app_name)).apply { mkdirs() }
+        } ?: filesDir
     }
 
-    private fun setupZoomAndTapToFocus(
-        cameraInfo: CameraInfo,
-        cameraControl: CameraControl,
-    ) {
-        val listener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+    private fun setupZoomAndTapToFocus(cameraInfo: CameraInfo, cameraControl: CameraControl) {
+        val scaleGestureDetector = ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScale(detector: ScaleGestureDetector): Boolean {
-                val currentZoomRatio: Float = cameraInfo.zoomState.value?.zoomRatio ?: 1F
-                val delta = detector.scaleFactor
-                cameraControl.setZoomRatio(currentZoomRatio * delta)
+                val zoomRatio = cameraInfo.zoomState.value?.zoomRatio ?: 1f
+                cameraControl.setZoomRatio(zoomRatio * detector.scaleFactor)
                 return true
             }
-        }
-        val scaleGestureDetector = ScaleGestureDetector(mBinding.previewView.context, listener)
+        })
+
         mBinding.previewView.setOnTouchListener { _, event ->
             scaleGestureDetector.onTouchEvent(event)
             if (event.action == MotionEvent.ACTION_DOWN) {
-                val factory = mBinding.previewView.meteringPointFactory
-                val point = factory.createPoint(event.x, event.y)
-                val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF)
-                    .setAutoCancelDuration(5, TimeUnit.SECONDS)
-                    .build()
-                cameraControl.startFocusAndMetering(action)
+                val point = mBinding.previewView.meteringPointFactory.createPoint(event.x, event.y)
+                cameraControl.startFocusAndMetering(
+                    FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF).setAutoCancelDuration(5, TimeUnit.SECONDS).build()
+                )
             }
             true
         }
     }
 
     private fun shutterSound() {
-        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        when (audio.ringerMode) {
-            AudioManager.RINGER_MODE_NORMAL -> {
-                val sound = MediaActionSound()
-                sound.play(MediaActionSound.SHUTTER_CLICK)
+        (getSystemService(AUDIO_SERVICE) as AudioManager).apply {
+            if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
+                MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
             }
-            AudioManager.RINGER_MODE_SILENT -> {}
-            AudioManager.RINGER_MODE_VIBRATE -> {}
         }
     }
 
-    private fun deleteImage() {
-        if (filePath!!.exists()) filePath!!.delete()
+    private fun File?.delete() {
+        this?.takeIf { it.exists() }?.delete()
     }
 
-    private fun showPopupMenu(view: View) { // inflate menu
-        val popup = PopupMenu(this, view)
-        val inflater: MenuInflater = popup.menuInflater
-        inflater.inflate(R.menu.menu_camera, popup.menu)
-        val flash: MenuItem = popup.menu.findItem(R.id.flash)
-        val torch: MenuItem = popup.menu.findItem(R.id.torch)
-        popup.setForceShowIcon(true)
-        if (lensFacing == CameraSelector.LENS_FACING_FRONT) {
-            isTorchModeEnabled = false
-            flashMode = ImageCapture.FLASH_MODE_OFF
-        }
-        if (isTorchModeEnabled) {
-            torch.title = getString(R.string.torch_off)
-            torch.icon = getDrawable(R.drawable.ic_torch_off)
-        } else {
-            torch.title = getString(R.string.torch_on)
-            torch.icon = getDrawable(R.drawable.ic_torch_on)
-        }
-        when (flashMode) {
-            ImageCapture.FLASH_MODE_OFF -> {
-                flash.title = getString(R.string.flash_on)
-                flash.icon = getDrawable(R.drawable.ic_flash_on)
-            }
-            ImageCapture.FLASH_MODE_ON -> {
-                flash.title = getString(R.string.flash_auto)
-                flash.icon = getDrawable(R.drawable.ic_flash_auto)
-            }
-            else -> {
-                flash.title = getString(R.string.flash_off)
-                flash.icon = getDrawable(R.drawable.ic_flash_off)
-            }
-        }
-        popup.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.flash -> {
-                    if (lensFacing != CameraSelector.LENS_FACING_FRONT) {
-                        if (camera?.cameraInfo?.hasFlashUnit() == true) {
-                            flashMode = when (flashMode) {
-                                ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
-                                ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_AUTO
-                                else -> ImageCapture.FLASH_MODE_OFF
-                            }
-                            imageCapture?.flashMode = flashMode
+    private fun showPopupMenu(view: View) {
+        PopupMenu(this, view).apply {
+            menuInflater.inflate(R.menu.menu_camera, menu)
+            setForceShowIcon(true)
+
+            with(menu) {
+                findItem(R.id.flash).apply {
+                    title = getString(
+                        when (flashMode) {
+                            ImageCapture.FLASH_MODE_OFF -> R.string.flash_on
+                            ImageCapture.FLASH_MODE_ON -> R.string.flash_auto
+                            else -> R.string.flash_off
                         }
-                    }
+                    )
+                    icon = getDrawable(
+                        when (flashMode) {
+                            ImageCapture.FLASH_MODE_OFF -> R.drawable.ic_flash_on
+                            ImageCapture.FLASH_MODE_ON -> R.drawable.ic_flash_auto
+                            else -> R.drawable.ic_flash_off
+                        }
+                    )
                 }
-                R.id.torch -> {
-                    if (lensFacing != CameraSelector.LENS_FACING_FRONT) {
-                        isTorchModeEnabled = !isTorchModeEnabled
-                        camera?.cameraControl?.enableTorch(isTorchModeEnabled)
-                    }
+                findItem(R.id.torch).apply {
+                    title = getString(if (isTorchModeEnabled) R.string.torch_off else R.string.torch_on)
+                    icon = getDrawable(if (isTorchModeEnabled) R.drawable.ic_torch_off else R.drawable.ic_torch_on)
                 }
-                else -> showToast("Other menu click")
             }
-            true
+
+            setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.flash -> toggleFlashMode()
+                    R.id.torch -> toggleTorchMode()
+                    else -> showToast("Other menu click")
+                }
+                true
+            }
+        }.show()
+    }
+
+    private fun toggleFlashMode() {
+        if (lensFacing != CameraSelector.LENS_FACING_FRONT && camera?.cameraInfo?.hasFlashUnit() == true) {
+            flashMode = when (flashMode) {
+                ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
+                ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_AUTO
+                else -> ImageCapture.FLASH_MODE_OFF
+            }
+            imageCapture?.flashMode = flashMode
         }
-        popup.show()
+    }
+
+    private fun toggleTorchMode() {
+        if (lensFacing != CameraSelector.LENS_FACING_FRONT) {
+            isTorchModeEnabled = !isTorchModeEnabled
+            camera?.cameraControl?.enableTorch(isTorchModeEnabled)
+        }
     }
 }
-
